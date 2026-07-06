@@ -10,16 +10,6 @@ from process_lp import process_license_plate
 
 app = Flask(__name__)
 CORS(app)
-# # --- CONFIGURAÇÃO DO NGROK ---
-# # Substitua pelo seu token real do painel do ngrok
-# NGROK_AUTH_TOKEN = "3FBkw2GFrrS2QLH7a1vBqaCxADU_4KF2d3sKrSwSqrGEfLsEj"
-# ngrok.set_auth_token(NGROK_AUTH_TOKEN)
-
-# # Abre um túnel HTTP na porta 5000
-# public_url = ngrok.connect(5000)
-# print(f"\n🚀 SUA API ESTÁ ONLINE VIA INTERNET!")
-# print(f"🔗 URL Pública: {public_url.public_url}\n")
-# # ------------------------------
 
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
