@@ -1,6 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type Webcam from 'react-webcam';
 import { recognizePlate } from '../services/inference';
+import { parsePrediction } from '../services/predictionHistory';
 import type { InferenceState } from '../types';
 
 const CAPTURE_INTERVAL_MS = 2000;
@@ -31,10 +32,17 @@ interface UseInferenceReturn extends InferenceState {
 }
 
 export function useInference(
-  intervalMs: number = CAPTURE_INTERVAL_MS
+  intervalMs: number = CAPTURE_INTERVAL_MS,
+  onPrediction?: (plate: string, completedAt: Date) => void
 ): UseInferenceReturn {
   const webcamRef = useRef<Webcam | null>(null);
   const runningRef = useRef(false);
+
+  // O loop vive além de uma renderização; a ref evita capturar um callback antigo.
+  const onPredictionRef = useRef(onPrediction);
+  useEffect(() => {
+    onPredictionRef.current = onPrediction;
+  }, [onPrediction]);
 
   const [state, setState] = useState<InferenceState>({
     cameraReady: false,
@@ -78,11 +86,17 @@ export function useInference(
         const result = await recognizePlate(frame);
         // Verifica novamente: usuário pode ter parado durante o await.
         if (!runningRef.current) break;
+        const completedAt = new Date();
         patch({
           loading: false,
           lastPlate: result,
-          lastInferenceTime: new Date(),
+          lastInferenceTime: completedAt,
         });
+
+        // Uma chamada concluída = no máximo um registro. Respostas como
+        // "No contours found" (HTTP 200) não são previsões e são ignoradas.
+        const plate = parsePrediction(result);
+        if (plate) onPredictionRef.current?.(plate, completedAt);
       } catch {
         if (!runningRef.current) break;
         patch({ loading: false, error: 'Erro ao comunicar com a API.' });

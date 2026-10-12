@@ -1,10 +1,14 @@
 import { Camera } from './components/Camera/Camera';
 import { Controls } from './components/Controls/Controls';
+import { PredictionHistory } from './components/History/PredictionHistory';
 import { Status } from './components/Status/Status';
 import { useInference } from './hooks/useInference';
+import { usePredictionHistory } from './hooks/usePredictionHistory';
 import './App.css';
 
 export default function App() {
+  const { records, warning, addPrediction, clearHistory } = usePredictionHistory();
+
   const {
     webcamRef,
     cameraReady,
@@ -18,7 +22,7 @@ export default function App() {
     onCameraError,
     start,
     stop,
-  } = useInference(2000);
+  } = useInference(2000, addPrediction);
 
   return (
     <div className="app">
@@ -61,6 +65,12 @@ export default function App() {
             onStop={stop}
           />
         </aside>
+
+        <PredictionHistory
+          records={records}
+          warning={warning}
+          onClear={clearHistory}
+        />
       </main>
     </div>
   );
