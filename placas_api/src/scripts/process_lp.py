@@ -3,15 +3,13 @@ from pathlib import Path
 import torch
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
-from PIL import Image, ImageOps
-import pandas as pd
+from PIL import Image
 import imageio
 
 
 from torchvision import transforms
 from torchvision.transforms import v2
-from torchvision.datasets import ImageFolder
+
 
 from torchvision import models
 
